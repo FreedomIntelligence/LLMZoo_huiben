@@ -1,3 +1,6 @@
+# import sys
+
+# print(sys.path)
 from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import FileResponse
 import shutil, uuid
@@ -11,8 +14,6 @@ import argparse
 from generate_huiben import generate_huiben
 
 app = FastAPI()
-# model_path = "/workspace2/junzhi/dreamlike_anime"
-model_path = "/workspace2/liangjuhao/models/dreamlik-photoreal-2.0"
 
 def get_local_ip():
     try:
@@ -73,7 +74,10 @@ async def get_huiben(story:str):
         image.save(os.path.join(UPLOAD_DIRECTORY, filename))
         file_url = f"http://{local_ip}:{port}/image/{filename}"  # 替换为您的域名和实际的图片路径
         img_url_list.append(file_url)
-    return picture_list, img_url_list
+    return {
+        "picture_list": picture_list,
+        "img_url_list": img_url_list
+    }
 
 @app.get("/list")
 async def show_images():
