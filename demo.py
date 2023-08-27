@@ -23,14 +23,14 @@ def generate(story):
 
 def main():
     with gr.Blocks() as g:
-        story = gr.Text(label="Input your story")
+        story = gr.Text(label="Input your story", lines=8)
         output = gr.Markdown("## Output Here")
         btn = gr.Button("Submit")
 
         btn.click(generate, inputs=story, outputs=output)
     
     gr.close_all()
-    g.launch(share=True)
+    g.launch(server_name="0.0.0.0", server_port=7860, share=True, max_threads=200)
 
 if __name__ == "__main__":
     main()

@@ -11,7 +11,8 @@ import socket
 from diffusers import DiffusionPipeline
 import torch
 import argparse
-from generate_huiben import generate_huiben
+import requests
+import random
 
 app = FastAPI()
 
@@ -67,13 +68,39 @@ async def upload_file(file: UploadFile = File(...)):
 async def get_huiben(story:str):
     if debug:
         return "http://tmp_url.png"
+    seed = random.randint(1, 10000000000)
     img_url_list = []
-    picture_list, img_list = generate_huiben(story)
-    for image in img_list:
-        filename = f"{uuid.uuid4()}.png"
-        image.save(os.path.join(UPLOAD_DIRECTORY, filename))
-        file_url = f"http://{local_ip}:{port}/image/{filename}"  # 替换为您的域名和实际的图片路径
-        img_url_list.append(file_url)
+    writer_address = "http://localhost:8069"
+    printer_address = "http://localhost:8070"
+    response = requests.get(f"{writer_address}/write_huiben", params={"story": story})
+    if response.status_code == 200:
+        res = response.json()
+        # print(res)
+        picture_list = res["picture_list"]
+        prompts = res["prompts"]
+    else:
+        return response.status_code
+    
+    print(prompts)
+    for prompt in prompts:
+        #request.get不能传入列表参数
+        #两个及以上参数params要单独写
+        params = {"prompt": prompt, "seed": seed}
+        print(params)
+        response = requests.get(f"{printer_address}/print_huiben", params=params)
+        if response.status_code == 200:
+            res = response.json()
+            # print(res)
+            img_url = res["img_url"]
+            img_url_list.append(img_url)
+        else:
+            return response.status_code
+
+    # for image in img_list:
+    #     filename = f"{uuid.uuid4()}.png"
+    #     image.save(os.path.join(UPLOAD_DIRECTORY, filename))
+    #     file_url = f"http://{local_ip}:{port}/image/{filename}"  # 替换为您的域名和实际的图片路径
+    #     img_url_list.append(file_url)
     return {
         "picture_list": picture_list,
         "img_url_list": img_url_list

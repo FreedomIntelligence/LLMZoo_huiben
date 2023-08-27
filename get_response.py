@@ -15,7 +15,7 @@ def get_response(inputs,outputs,tokenizer,num_return):
 
 def load_and_generate(human,model_path="/workspace2/junzhi/LLMZoo/phoenix_7b_junzhi"):
     accelerator = Accelerator()
-    gen_kwargs = {'num_return_sequences': 1, 'min_new_tokens': 10 ,'max_length':1024, 'num_beams':2,
+    gen_kwargs = {'num_return_sequences': 1, 'min_new_tokens': 10 ,'max_length':2048, 'num_beams':2,
             'do_sample':True, 'top_p':1.0, 'temperature':1.0, 'repetition_penalty':1.5}
     tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True,padding_side='left')
     # if args.process_tokenizer:
@@ -49,7 +49,7 @@ def get_model(model_path="/workspace2/junzhi/LLMZoo/phoenix_7b_junzhi"):
 
 def generate(human, model, tokenizer):
     accelerator = Accelerator()
-    gen_kwargs = {'num_return_sequences': 1, 'min_new_tokens': 10 ,'max_length':1024, 'num_beams':2,
+    gen_kwargs = {'num_return_sequences': 1, 'min_new_tokens': 10 ,'max_length':2048, 'num_beams':2,
             'do_sample':True, 'top_p':1.0, 'temperature':1.0, 'repetition_penalty':1.0}
     model = model.eval()
     system = "A chat between a curious human and an artificial intelligence assistant. \nThe assistant gives helpful, detailed, and polite answers to the human's questions.\n\n"
