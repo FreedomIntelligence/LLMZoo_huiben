@@ -53,65 +53,65 @@ def generate_md_output():
     return None
 
 @app.get("/write_huiben")
-async def generate_huiben(story: str):
+async def generate_huiben(story: str, page_num: str):
     # model, tokenizer = get_model(model_path="/workspace2/junzhi/checkpoints/huiben")
 
     # seed = random.randint(1, 10000000000)
 
-    huiben_frame_prompt = """
-    你接下来将扮演一个资深的绘本改编者，给你一个故事，你可以输出这个故事改编成的绘本的画面数以及每个画面的描述。
+    huiben_frame_prompt = f"""你接下来将扮演一个资深的绘本改编者，给你一个故事，你可以输出这个故事改编成的绘本的每个画面的描述。
+请确保绘本的画面数为{page_num}页
 
-    输出格式：
-    画面1:xxx\n  画面2:xxx\n ...... (xxx是具体的内容)。
+输出格式：
+画面1:xxx\n  画面2:xxx\n ...... (xxx是具体的内容)。
 
-    注意：
-    请尽量使得每一个画面的内容不太一样
-    请确保你的改编完全基于输入的故事，不要自己添加无关的情节和内容。
-    尽可能多的转述出原输入的故事，保留输入故事中对话的内容
-    请使用规定的输出格式，即：
-    画面1:xxx\n  画面2:xxx\n ...... (xxx是具体的内容)。
-    不要输出任何无关的输出
+注意：
+1. 请尽量使得每一个画面的内容不太一样
+2. 请确保你的改编完全基于输入的故事，不要自己添加无关的情节和内容。
+3. 尽可能多的转述出原输入的故事，保留输入故事中对话的内容
+4. 请使用规定的输出格式，即：
 
-    输入：
+画面1:xxx\n  画面2:xxx\n ...... (xxx是具体的内容)。
+
+5. 不要输出任何无关的输出
+6. 生成的绘本页数为{page_num}页
+
+输入：
+"""
+
+    huiben_des_prompt = """Next, you will take on the role of a seasoned picture book illustrator. Given a textual description of one page from a picture book story, you need to create a visual depiction of that page's illustration.
+
+Your answer should include descriptions of the visual details for the illustration page:
+
+Subject: The main content of the illustration. It can be characters, animals, or scenery. There can be multiple subjects.
+Detail: Detailed description of the actions, attire, expressions, etc., of the subjects in the illustration. Each subject needs to be described.
+Environment: Indoor, outdoor, underwater, space, forest, on an airplane, etc.
+Color: Vibrant, muted, pastel, bright, etc.
+
+Output Format:
+
+Subject:
+Detail:
+Environment:
+Color:
+
+Note:
+
+1. Illustration creation should be based on the original description from the picture book. Avoid adding irrelevant details.
+2. The output should follow the given format strictly. Do not provide any extraneous output or omit any part. The output format is:
+Subject:
+Detail:
+Environment:
+Color:
+
+3. Avoid using pronouns in the illustration description. Instead, use specific subject names for reference.
+4. The description of the illustration should focus solely on the depiction of the visual scene, omitting psychological activities and reflections unrelated to the image.
+5. In each part of the output format, provide your answer as short as possible but preserve key infomation, please use concise language. Make sure the whole sentence is less than 77 words
+6. Please answer the question using English
+
+Input: 
 
 
-    """
-
-    huiben_des_prompt = """
-    Next, you will take on the role of a seasoned picture book illustrator. Given a textual description of one page from a picture book story, you need to create a visual depiction of that page's illustration.
-
-    Your answer should include descriptions of the visual details for the illustration page:
-
-    Subject: The main content of the illustration. It can be characters, animals, or scenery. There can be multiple subjects.
-    Detail: Detailed description of the actions, attire, expressions, etc., of the subjects in the illustration. Each subject needs to be described.
-    Environment: Indoor, outdoor, underwater, space, forest, on an airplane, etc.
-    Color: Vibrant, muted, pastel, bright, etc.
-
-    Output Format:
-
-    Subject:
-    Detail:
-    Environment:
-    Color:
-
-    Note:
-
-    1. Illustration creation should be based on the original description from the picture book. Avoid adding irrelevant details.
-    2. The output should follow the given format strictly. Do not provide any extraneous output or omit any part. The output format is:
-    Subject:
-    Detail:
-    Environment:
-    Color:
-
-    3. Avoid using pronouns in the illustration description. Instead, use specific subject names for reference.
-    4. The description of the illustration should focus solely on the depiction of the visual scene, omitting psychological activities and reflections unrelated to the image.
-    5. In each part of the output format, provide your answer as short as possible but preserve key infomation, please use concise language. Make sure the whole sentence is less than 77 words
-    6. Please answer the question using English
-
-    Input: 
-
-
-    """
+"""
     prompts = []
     # story = input()
     # story = """
@@ -124,6 +124,7 @@ async def generate_huiben(story: str):
     picture_list = get_frame(frame_input, model, tokenizer)
     # print(picture_list)
     for picture in picture_list:
+        print(picture)
         des_input = huiben_des_prompt+"画面："+picture
         # print(des_input)
         huiben_des = get_one_des(des_input, model, tokenizer)
@@ -139,5 +140,5 @@ async def generate_huiben(story: str):
 
 
 if __name__ == "__main__":
-    model, tokenizer = get_model(model_path="/workspace2/junzhi/checkpoints/huiben")
+    model, tokenizer = get_model(model_path="/workspace2/junzhi/checkpoints/huiben_set_num")
     uvicorn.run(app, host=local_host, port=port)

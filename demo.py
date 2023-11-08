@@ -1,9 +1,9 @@
 import requests
 import gradio as gr
 
-def generate(story):
-    server_address = "http://localhost:8068"
-    response = requests.get(f"{server_address}/generate", params={"story": story})
+def generate(story, page_num):
+    server_address = "http://localhost:8065"
+    response = requests.get(f"{server_address}/generate", params={"story": story, "page_num": page_num})
     if response.status_code == 200:
         res = response.json()
         # print(res)
@@ -24,13 +24,14 @@ def generate(story):
 def main():
     with gr.Blocks() as g:
         story = gr.Text(label="Input your story", lines=8)
+        page_num = gr.Text(label="Input your desired page number", lines=1)
         output = gr.Markdown("## Output Here")
         btn = gr.Button("Submit")
 
-        btn.click(generate, inputs=story, outputs=output)
+        btn.click(generate, inputs=[story, page_num], outputs=output)
     
     gr.close_all()
-    g.launch(server_name="0.0.0.0", server_port=7860, share=True, max_threads=200)
+    g.launch(server_name="0.0.0.0", server_port=7861, share=True)
 
 if __name__ == "__main__":
     main()

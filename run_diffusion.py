@@ -6,8 +6,8 @@ class image_generator():
         self.pipeline.to("cuda")
 
     def generate_img(self, prompt, negative_prompt, generator):
-        image = self.pipeline(prompt=prompt, negative_prompt=negative_prompt, generator=generator).images[0]
-        return image
+        images = self.pipeline(prompt=prompt, num_inference_steps = 30, negative_prompt=negative_prompt, generator=generator).images
+        return images
 
 # pipeline = DiffusionPipeline.from_pretrained("/workspace2/junzhi/dreamlike_anime")
 # seed = 1217462402

@@ -6,6 +6,7 @@ import random
 import os
 import uuid
 import socket
+from typing import List
 
 
 def get_local_ip():
@@ -32,25 +33,27 @@ UPLOAD_DIRECTORY = "/workspace2/junzhi/LLMZoo_huiben/huiben"  # 替换为您希�
 local_ip = get_local_ip() # 调用函数获取本机IP地址
 local_host = '0.0.0.0'
 port = 8070
-app_port = 8068
+app_port = 8065
 
 app = FastAPI()
 
 @app.get("/print_huiben")
 async def huiben_print(prompt: str, seed: int):
+    prompt = prompt.split("<sep>")
     print(prompt)
-    negative_prompt = """
-    broken hand, unnatural body, simple background, duplicate, retro style, low quality, lowest quality, bad anatomy,
-    bad proportions, extra digits, duplicate, watermark, signature, text, extra digit, fewer digits, worst quality,
-    jpeg artifacts, blurry, naked, nude
-    """
+    negative_prompt = ["""
+    broken hand, unnatural body, simple background, duplicate, naked, nude
+    """]*len(prompt)
     generator = torch.Generator("cuda").manual_seed(seed)
-    img = g.generate_img(prompt, negative_prompt, generator)
-    filename = f"{uuid.uuid4()}.png"
-    img.save(os.path.join(UPLOAD_DIRECTORY, filename))
-    file_url = f"http://{local_ip}:{app_port}/image/{filename}"  # 替换为您的域名和实际的图片路径
+    imgs = g.generate_img(prompt, negative_prompt, generator)
+    img_url = []
+    for img in imgs:
+        filename = f"{uuid.uuid4()}.png"
+        img.save(os.path.join(UPLOAD_DIRECTORY, filename))
+        file_url = f"http://{local_ip}:{app_port}/image/{filename}"  # 替换为您的域名和实际的图片路径
+        img_url.append(file_url)
     return {
-        "img_url": file_url
+        "img_url": img_url
     }
     # result = 
     # print(result)

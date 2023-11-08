@@ -39,7 +39,7 @@ def get_local_ip():
 UPLOAD_DIRECTORY = "/workspace2/junzhi/LLMZoo_huiben/huiben"  # 替换为您希望保存上传文件的目录
 local_host = '0.0.0.0'
 local_ip = get_local_ip() # 调用函数获取本机IP地址
-port = 8068
+port = 8065
 debug = False
 
 @app.get("/image/{filename}")
@@ -65,36 +65,46 @@ async def upload_file(file: UploadFile = File(...)):
     return file_url
 
 @app.get("/generate")
-async def get_huiben(story:str):
+async def get_huiben(story:str, page_num: str):
     if debug:
         return "http://tmp_url.png"
     seed = random.randint(1, 10000000000)
     img_url_list = []
     writer_address = "http://localhost:8069"
     printer_address = "http://localhost:8070"
-    response = requests.get(f"{writer_address}/write_huiben", params={"story": story})
+    response = requests.get(f"{writer_address}/write_huiben", params={"story": story, "page_num": page_num})
     if response.status_code == 200:
         res = response.json()
         # print(res)
         picture_list = res["picture_list"]
         prompts = res["prompts"]
+        prompts = "<sep>".join(prompts)
     else:
         return response.status_code
     
     print(prompts)
-    for prompt in prompts:
-        #request.get不能传入列表参数
-        #两个及以上参数params要单独写
-        params = {"prompt": prompt, "seed": seed}
-        print(params)
-        response = requests.get(f"{printer_address}/print_huiben", params=params)
-        if response.status_code == 200:
-            res = response.json()
-            # print(res)
-            img_url = res["img_url"]
-            img_url_list.append(img_url)
-        else:
-            return response.status_code
+    params = {"prompt": prompts, "seed": seed}
+    response = requests.get(f"{printer_address}/print_huiben", params=params)
+    if response.status_code == 200:
+        res = response.json()
+        # print(res)
+        img_url_list = res["img_url"]
+        # img_url_list.append(img_url)
+    else:
+        return response.status_code
+    # for prompt in prompts:
+    #     #request.get不能传入列表参数
+    #     #两个及以上参数params要单独写
+    #     params = {"prompt": prompt, "seed": seed}
+    #     print(params)
+    #     response = requests.get(f"{printer_address}/print_huiben", params=params)
+    #     if response.status_code == 200:
+    #         res = response.json()
+    #         # print(res)
+    #         img_url = res["img_url"]
+    #         img_url_list.append(img_url)
+    #     else:
+    #         return response.status_code
 
     # for image in img_list:
     #     filename = f"{uuid.uuid4()}.png"

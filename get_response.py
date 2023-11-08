@@ -49,8 +49,8 @@ def get_model(model_path="/workspace2/junzhi/LLMZoo/phoenix_7b_junzhi"):
 
 def generate(human, model, tokenizer):
     accelerator = Accelerator()
-    gen_kwargs = {'num_return_sequences': 1, 'min_new_tokens': 10 ,'max_length':2048, 'num_beams':2,
-            'do_sample':True, 'top_p':1.0, 'temperature':1.0, 'repetition_penalty':1.0}
+    gen_kwargs = {'num_return_sequences': 1, 'min_new_tokens': 10 ,'max_length':2048, 'num_beams':1,
+            'do_sample':True, 'top_p':0.7, 'temperature':0.9, 'repetition_penalty':1.2}
     model = model.eval()
     system = "A chat between a curious human and an artificial intelligence assistant. \nThe assistant gives helpful, detailed, and polite answers to the human's questions.\n\n"
     prompt = f"""{system}<Human>: {human} <Assistant>: """
