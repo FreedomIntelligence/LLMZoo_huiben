@@ -17,3 +17,4 @@ python app.py
 ```shell
 python demo.py
 ```
+### Then you will see the gradio demo on http://127.0.0.1:7861
